@@ -155,6 +155,15 @@ sap.ui.define([
 			}
 
 		},
+		
+		/**
+		 * Event handler when the add button gets pressed
+		 * @public
+		 */
+		 onAdd : function() {
+			this.getRouter().navTo("add");	
+		 },
+
 
 		/**
 		 * Event handler for refresh event. Keeps filter, sort
