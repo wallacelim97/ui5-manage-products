@@ -93,6 +93,9 @@ sap.ui.define([
 
 			this.getView().bindElement({
 				path: sObjectPath,
+				paramteres : {
+					expand: "ToSupplier"
+				},
 				events: {
 					change: this._onBindingChange.bind(this),
 					dataRequested: function () {
