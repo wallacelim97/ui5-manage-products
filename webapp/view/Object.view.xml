@@ -8,6 +8,17 @@
 		<semantic:headerContent>
 			<ObjectNumber number="{ path: 'Price', formatter: '.formatter.numberUnit' }" unit="{CurrencyCode}"/>
 			<ObjectAttribute text="{Name}" />
+			<ObjectHeader>
+				<statuses>
+					<ObjectStatus text="{
+						parts: [
+							{path: 'WeightUnit'},
+							{path: 'WeightMeasure'}
+						],
+						formatter : '.formatter.delivery'
+					}"/>
+				</statuses>
+			</ObjectHeader>
 		</semantic:headerContent>
 		<semantic:content>
 			<l:VerticalLayout width="100%">

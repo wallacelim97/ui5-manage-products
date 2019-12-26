@@ -3,6 +3,7 @@
 sap.ui.define([
 	"sap/ui/test/opaQunit",
 	"./pages/Worklist",
+	"./pages/NewProduct",
 	"./pages/Browser",
 	"./pages/Object",
 	"./pages/App"
@@ -10,6 +11,15 @@ sap.ui.define([
 	"use strict";
 
 	QUnit.module("Object");
+
+	opaTest("Should see the 'New Product' view after pressing the 'Add' button", function (Given, When, Then) {
+		// Arrangements
+		Given.iStartMyApp();
+		//Actions
+		When.onTheWorklistPage.iWaitUntilTheTableIsLoaded().and.iPressAdd();
+		//Assertions
+		Then.onTheNewProductPage.iShouldSeeThePage().and.iTeardownMyAppFrame();
+	});
 
 	opaTest("Should remember the first item", function (Given, When, Then) {
 		// Arrangements
@@ -37,13 +47,12 @@ sap.ui.define([
 
 		// Assertions
 		Then.onTheObjectPage.iShouldSeeTheObjectViewsBusyIndicator().
-			and.theObjectViewsBusyIndicatorDelayIsRestored().
-			and.iShouldSeeTheRememberedObject().
-			and.theObjectViewShouldContainOnlyFormattedUnitNumbers();
+		and.theObjectViewsBusyIndicatorDelayIsRestored().
+		and.iShouldSeeTheRememberedObject().
+		and.theObjectViewShouldContainOnlyFormattedUnitNumbers();
 
 		// Cleanup
 		Then.iTeardownMyApp();
 	});
-
 
 });
