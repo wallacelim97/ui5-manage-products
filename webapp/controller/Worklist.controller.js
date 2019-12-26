@@ -10,7 +10,7 @@ sap.ui.define([
 	return BaseController.extend("opensap.manageproducts.ManageProducts.controller.Worklist", {
 
 		formatter: formatter,
-		
+
 		_mFilters: {
 			cheap: [new sap.ui.model.Filter("Price", "LT", 100)],
 			moderate: [new sap.ui.model.Filter("Price", "BT", 100, 1000)],
@@ -25,7 +25,7 @@ sap.ui.define([
 		 * Called when the worklist controller is instantiated.
 		 * @public
 		 */
-		onInit : function () {
+		onInit: function () {
 			var oViewModel,
 				iOriginalBusyDelay,
 				oTable = this.byId("table");
@@ -39,12 +39,12 @@ sap.ui.define([
 
 			// Model used to manipulate control states
 			oViewModel = new JSONModel({
-				worklistTableTitle : this.getResourceBundle().getText("worklistTableTitle"),
+				worklistTableTitle: this.getResourceBundle().getText("worklistTableTitle"),
 				shareOnJamTitle: this.getResourceBundle().getText("worklistTitle"),
 				shareSendEmailSubject: this.getResourceBundle().getText("shareSendEmailWorklistSubject"),
 				shareSendEmailMessage: this.getResourceBundle().getText("shareSendEmailWorklistMessage", [location.href]),
-				tableNoDataText : this.getResourceBundle().getText("tableNoDataText"),
-				tableBusyDelay : 0,
+				tableNoDataText: this.getResourceBundle().getText("tableNoDataText"),
+				tableBusyDelay: 0,
 				cheap: 0,
 				moderate: 0,
 				expensive: 0
@@ -54,7 +54,7 @@ sap.ui.define([
 			// Make sure, busy indication is showing immediately so there is no
 			// break after the busy indication for loading the view's meta data is
 			// ended (see promise 'oWhenMetadataIsLoaded' in AppController)
-			oTable.attachEventOnce("updateFinished", function(){
+			oTable.attachEventOnce("updateFinished", function () {
 				// Restore original busy indicator delay for worklist's table
 				oViewModel.setProperty("/tableBusyDelay", iOriginalBusyDelay);
 			});
@@ -73,7 +73,7 @@ sap.ui.define([
 		 * @param {sap.ui.base.Event} oEvent the update finished event
 		 * @public
 		 */
-		onUpdateFinished : function (oEvent) {
+		onUpdateFinished: function (oEvent) {
 			// update the worklist's object counter after the table update
 			var sTitle,
 				oTable = oEvent.getSource(),
@@ -85,10 +85,10 @@ sap.ui.define([
 			if (iTotalItems && oTable.getBinding("items").isLengthFinal()) {
 				sTitle = this.getResourceBundle().getText("worklistTableTitleCount", [iTotalItems]);
 				// iterate the filtersand request the count from the server
-				jQuery.each(this._mFilters, function(sFilterKey, oFilter) {
+				jQuery.each(this._mFilters, function (sFilterKey, oFilter) {
 					oModel.read("/ProductSet/$count", {
-						filters: oFilter, 
-						success: function(oData) {
+						filters: oFilter,
+						success: function (oData) {
 							var sPath = "/" + sFilterKey;
 							oViewModel.setProperty(sPath, oData);
 						}
@@ -99,30 +99,30 @@ sap.ui.define([
 			}
 			this.getModel("worklistView").setProperty("/worklistTableTitle", sTitle);
 		},
-		
+
 		/**
 		 * Event handler when a filter tab gets pressed
 		 * @param {sap.ui.base.Event} oEvent the filter tab event
 		 * @public
 		 */
-		 onQuickFilter: function(oEvent) {
-		 	var sKey = oEvent.getParameter("key"),
-		 		oFilter = this._mFilters[sKey],
-		 		oTable = this.byId("table"),
-		 		oBinding = oTable.getBinding("items");
-		 	if (oFilter) {
-		 		oBinding.filter(oFilter);
-		 	} else {
-		 		oBinding.filter([]);
-		 	}
-		 },
+		onQuickFilter: function (oEvent) {
+			var sKey = oEvent.getParameter("key"),
+				oFilter = this._mFilters[sKey],
+				oTable = this.byId("table"),
+				oBinding = oTable.getBinding("items");
+			if (oFilter) {
+				oBinding.filter(oFilter);
+			} else {
+				oBinding.filter([]);
+			}
+		},
 
 		/**
 		 * Event handler when a table item gets pressed
 		 * @param {sap.ui.base.Event} oEvent the table selectionChange event
 		 * @public
 		 */
-		onPress : function (oEvent) {
+		onPress: function (oEvent) {
 			// The source is the list item that got pressed
 			this._showObject(oEvent.getSource());
 		},
@@ -132,13 +132,12 @@ sap.ui.define([
 		 * We navigate back in the browser history
 		 * @public
 		 */
-		onNavBack : function() {
+		onNavBack: function () {
 			// eslint-disable-next-line sap-no-history-manipulation
 			history.go(-1);
 		},
 
-
-		onSearch : function (oEvent) {
+		onSearch: function (oEvent) {
 			if (oEvent.getParameters().refreshButtonPressed) {
 				// Search field's 'refresh' button has been pressed.
 				// This is visible if you select any master list item.
@@ -162,14 +161,40 @@ sap.ui.define([
 		 * and group settings and refreshes the list binding.
 		 * @public
 		 */
-		onRefresh : function () {
+		onRefresh: function () {
 			var oTable = this.byId("table");
 			oTable.getBinding("items").refresh();
+		},
+
+		/**
+		 * Event handler for press event on object identifier. 
+		 * opens detail popup from component to show product dimensions.
+		 * @public
+		 */
+		onShowDetailPopover: function (oEvent) {
+
+			var oPopover = this._getPopover();
+			var oSource = oEvent.getSource();
+			oPopover.bindElement(oSource.getBindingContext().getPath());
+
+			// open dialog
+			oPopover.openBy(oEvent.getParameter("domRef"));
 		},
 
 		/* =========================================================== */
 		/* internal methods                                            */
 		/* =========================================================== */
+
+		_getPopover: function () {
+			// create dialog lazily
+			if (!this._oPopover) {
+				// create popover via fragment factory
+				this._oPopover = sap.ui.xmlfragment(
+					"opensap.manageproducts.ManageProducts.view.ResponsivePopover", this);
+				this.getView().addDependent(this._oPopover);
+			}
+			return this._oPopover;
+		},
 
 		/**
 		 * Shows the selected item on the object page
@@ -177,7 +202,7 @@ sap.ui.define([
 		 * @param {sap.m.ObjectListItem} oItem selected Item
 		 * @private
 		 */
-		_showObject : function (oItem) {
+		_showObject: function (oItem) {
 			this.getRouter().navTo("object", {
 				objectId: oItem.getBindingContext().getProperty("ProductID")
 			});
@@ -188,7 +213,7 @@ sap.ui.define([
 		 * @param {sap.ui.model.Filter[]} aTableSearchState An array of filters for the search
 		 * @private
 		 */
-		_applySearch: function(aTableSearchState) {
+		_applySearch: function (aTableSearchState) {
 			var oTable = this.byId("table"),
 				oViewModel = this.getModel("worklistView");
 			oTable.getBinding("items").filter(aTableSearchState, "Application");
